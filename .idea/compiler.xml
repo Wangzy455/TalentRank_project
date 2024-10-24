@@ -8,7 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="TalentRank-server" />
         <module name="TalentRank-pojo" />
-        <module name="Tanlent-common" />
+        <module name="TalentRank-common" />
       </profile>
     </annotationProcessing>
   </component>
