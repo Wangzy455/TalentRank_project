@@ -3,20 +3,36 @@ server:
 
 spring:
   datasource:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/talent_rank?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: 123wang
-      type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/talent_rank?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123wang
+    type: com.alibaba.druid.pool.DruidDataSource
   data:
     redis:
       host: 127.0.0.1
       port: 6379
       password:
-      database: 0
+      database: 1
       pool:
         max-active: 8
         max-wait: -1
         max-idle: 8
         min-idle: 0
         timeout: 5000
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.qiniu.talentrankpojo.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+
+qiniu:
+   jwt:
+     # 设置jwt签名加密时使用的秘钥
+     user-secret-key: wzy
+     # 设置jwt过期时间
+     user-ttl: 7200000
+     # 设置前端传递过来的令牌名称
+     user-token-name: token

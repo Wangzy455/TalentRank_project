@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <!-- 引入 Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>  
+    <!-- 引入 Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>  
+    <!-- 引入 Element Plus 图标 -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <!-- 引入axios库 -->
+    <script src="axios.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .app-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 360px;
+        }
+        .login-title {
+            text-align: center;
+            color: #303133;
+            margin: 0;
+        }
+        .login-button {
+            width: 100%;
+        }
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-title">TalentRank Rating System</div>
+        <el-card class="login-card">
+            <template #header>
+                <h2 class="login-title">用户登录</h2>
+            </template>
+            <el-form :model="loginForm" :rules="rules" ref="loginFormRef" @submit.prevent="handleLogin">
+                <el-form-item prop="username">
+                    <el-input 
+                        v-model="loginForm.username" 
+                        placeholder="用户名" 
+                        :prefix-icon="User"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input 
+                        v-model="loginForm.password" 
+                        type="password" 
+                        placeholder="密码" 
+                        :prefix-icon="Lock"
+                        show-password
+                    ></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" native-type="submit" :loading="loading" class="login-button">
+                        登录
+                    </el-button>
+                </el-form-item>
+            </el-form>
+            <div class="login-options">
+                <el-checkbox v-model="rememberMe">记住我</el-checkbox>
+                <el-link type="primary" @click="goToRegister">注册新账户</el-link>
+            </div>
+        </el-card>
+    </div>
+    <script>
+        const { createApp, ref, reactive } = Vue;
+        const app = createApp({
+            setup() {
+                const loginForm = reactive({
+                    username: '',
+                    password: ''
+                });
+
+                const rules = {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+                    ]
+                };
+
+                const loginFormRef = ref(null);
+                const loading = ref(false);
+                const rememberMe = ref(false);
+
+                // 预留的跳转链接接口
+                const successRedirectUrl = '/index.html'; // 登录成功后跳转的URL
+                const registerRedirectUrl = '/register.html'; // 注册按钮跳转的URL
+
+                const handleLogin = async () => {
+                    if (!loginFormRef.value) return;
+
+                    try {
+                        await loginFormRef.value.validate();
+                        loading.value = true;
+
+                        // 使用axios发送POST请求到后端的登录接口
+                        const response = await axios.post('/user/login', {
+                            username: loginForm.username,
+                            password: loginForm.password
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        // 检查返回的对象是否不为空
+                        if (response.data && Object.keys(response.data).length !== 0) {
+                            // 如果返回的对象不为空，认为登录成功
+                            ElementPlus.ElMessage.success('登录成功');
+                            window.location.href = successRedirectUrl; // 使用预留的接口进行跳转
+                        } else {
+                            // 如果返回的对象为空，处理登录失败情况
+                            ElementPlus.ElMessage.error('登录失败：返回数据为空');
+                        }
+                    } catch (error) {
+                        console.error('登录失败:', error);
+                        ElementPlus.ElMessage.error('登录失败，请检查您的用户名和密码');
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const goToRegister = () => {
+                    window.location.href = registerRedirectUrl; // 使用预留的接口进行跳转
+                };
+
+                return {
+                    loginForm,
+                    rules,
+                    loginFormRef,
+                    loading,
+                    rememberMe,
+                    handleLogin,
+                    goToRegister,
+                    User: ElementPlusIconsVue.User,
+                    Lock: ElementPlusIconsVue.Lock
+                };
+            }
+        });
+
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>

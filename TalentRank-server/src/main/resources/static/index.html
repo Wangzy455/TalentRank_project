@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer TalentRank with Custom About Link</title>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Vue Router -->
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <!-- Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-menu {
+            padding-left: 50px;
+        }
+        .content-container {
+            max-width: 800px;
+            margin: 120px auto 0;
+            text-align: center;
+            padding: 20px;
+        }
+        .search-title {
+            font-size: 2.8em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+        .search-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .el-input-group__append {
+            background-color: #409EFF;
+            border-color: #409EFF;
+            color: white;
+        }
+        .el-input-group__append:hover {
+            background-color: #66b1ff;
+            border-color: #66b1ff;
+        }
+        .el-input__inner {
+            height: 50px;
+            font-size: 16px;
+            border-radius: 25px 0 0 25px;
+        }
+        .el-input-group__append button {
+            height: 50px;
+            padding: 0 25px;
+            font-size: 16px;
+            border-radius: 0 25px 25px 0;
+        }
+        @media (max-width: 768px) {
+            .content-container {
+                margin-top: 100px;
+                padding: 10px;
+            }
+            .search-title {
+                font-size: 2.2em;
+            }
+            .el-input__inner, .el-input-group__append button {
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <el-menu
+                :default-active="activeIndex"
+                class="nav-menu"
+                mode="horizontal"
+                @select="handleSelect"
+            >
+                <el-menu-item index="home">首页</el-menu-item>
+                <el-menu-item index="about">个人中心</el-menu-item>
+            </el-menu>
+        </div>
+        <router-view></router-view>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        const { createRouter, createWebHashHistory } = VueRouter
+
+        // 在这里设置"关于我"页面的路径
+        const ABOUT_PAGE_URL = '/userView.html'  // 将此URL替换为您的"关于我"页面地址
+
+        // 首页组件
+        const Home = {
+            template: `
+                <div class="content-container">
+                    <h1 class="search-title">Developer TalentRank</h1>
+                    <div class="search-bar">
+                        <el-input
+                            v-model="searchQuery"
+                            placeholder="搜索开发者"
+                            :prefix-icon="Search"
+                            @keyup.enter="performSearch"
+                        >
+                            <template #append>
+                                <el-button :icon="Search" @click="performSearch">搜索</el-button>
+                            </template>
+                        </el-input>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const searchQuery = ref('')
+                const performSearch = () => {
+                    console.log('Searching for:', searchQuery.value)
+                    // 这里可以添加实际的搜索逻辑
+                }
+                return {
+                    searchQuery,
+                    performSearch,
+                    Search: ElementPlusIconsVue.Search
+                }
+            }
+        }
+
+        // 路由配置
+        const routes = [
+            { path: '/', component: Home },
+            { path: '/about', component: { template: '<div></div>' } }
+        ]
+
+        const router = createRouter({
+            history: createWebHashHistory(),
+            routes
+        })
+
+        const app = createApp({
+            setup() {
+                const activeIndex = ref('home')
+
+                const handleSelect = (key) => {
+                    if (key === 'about') {
+                        window.location.href = ABOUT_PAGE_URL
+                    } else {
+                        router.push('/')
+                    }
+                }
+
+                return {
+                    activeIndex,
+                    handleSelect
+                }
+            }
+        })
+
+        app.use(router)
+        app.use(ElementPlus)
+        app.mount('#app')
+    </script>
+</body>
+</html>

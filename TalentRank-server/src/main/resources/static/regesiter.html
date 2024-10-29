@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <!-- 引入 Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>   
+    <!-- 引入 Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css"> 
+    <script src="https://unpkg.com/element-plus"></script>   
+    <!-- 引入 Element Plus 图标 -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>   
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .app-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .register-card {
+            width: 100%;
+            max-width: 360px;
+        }
+        .register-title {
+            text-align: center;
+            color: #303133;
+            margin: 0;
+        }
+        .register-button {
+            width: 100%;
+        }
+        .register-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-title">TalentRank Rating System</div>
+        <el-card class="register-card">
+            <template #header>
+                <h2 class="register-title">用户注册</h2>
+            </template>
+            <el-form :model="registerForm" :rules="rules" ref="registerFormRef" @submit.prevent="handleRegister">
+                <el-form-item prop="username">
+                    <el-input 
+                        v-model="registerForm.username" 
+                        placeholder="用户名" 
+                        :prefix-icon="User"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input 
+                        v-model="registerForm.password" 
+                        type="password" 
+                        placeholder="密码" 
+                        :prefix-icon="Lock"
+                        show-password
+                    ></el-input>
+                </el-form-item>
+                <el-form-item prop="nickname">
+                    <el-input 
+                        v-model="registerForm.nickname" 
+                        placeholder="昵称" 
+                    ></el-input>
+                </el-form-item>
+                <el-form-item prop="introduction">
+                    <el-input 
+                        type="textarea"
+                        v-model="registerForm.introduction" 
+                        placeholder="个人介绍" 
+                    ></el-input>
+                </el-form-item>
+                <el-form-item prop="avatar">
+                    <el-upload
+                        class="avatar-uploader"
+                        action="https://jsonplaceholder.typicode.com/posts/"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :before-upload="beforeUpload"
+                        :file-list="fileList"
+                    >
+                        <el-button size="small" type="primary">点击上传</el-button>
+                        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" native-type="submit" :loading="loading" class="register-button">
+                        注册
+                    </el-button>
+                </el-form-item>
+            </el-form>
+            <div class="register-options">
+                <el-link type="primary" @click="goToLogin">已有账户？登录</el-link>
+            </div>
+        </el-card>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive } = Vue
+        const app = createApp({
+            setup() {
+                const registerForm = reactive({
+                    username: '',
+                    password: '',
+                    nickname: '',
+                    introduction: ''
+                })
+
+                const avatarFile = reactive({
+                    fileList: []
+                })
+
+                const rules = {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+                    ],
+                    nickname: [
+                        { required: true, message: '请输入昵称', trigger: 'blur' }
+                    ],
+                    introduction: [
+                        { required: true, message: '请输入个人介绍', trigger: 'blur' }
+                    ]
+                }
+
+                const registerFormRef = ref(null)
+                const loading = ref(false)
+
+                // 预留的跳转链接接口
+                const successRedirectUrl = '/login.html'; // 注册成功后跳转的URL
+                const loginRedirectUrl = '/login.html'; // 登录按钮跳转的URL
+
+                const handleRegister = async () => {
+                    if (!registerFormRef.value) return
+
+                    try {
+                        await registerFormRef.value.validate()
+                        loading.value = true
+                        // 这里应该调用实际的注册API
+                        console.log('注册信息:', registerForm)
+                        
+                        // 模拟API调用
+                        await new Promise(resolve => setTimeout(resolve, 1000))
+                        
+                        ElementPlus.ElMessage.success('注册成功')
+                        window.location.href = successRedirectUrl; // 使用预留的接口进行跳转
+                    } catch (error) {
+                        console.error('注册失败:', error)
+                        ElementPlus.ElMessage.error('注册失败，请检查您的输入')
+                    } finally {
+                        loading.value = false
+                    }
+                }
+
+                const goToLogin = () => {
+                    window.location.href = loginRedirectUrl; // 使用预留的接口进行跳转
+                }
+
+                const handlePreview = (file) => {
+                    console.log('Preview file', file);
+                }
+
+                const handleRemove = (file, fileList) => {
+                    console.log('Remove file', file, fileList);
+                }
+
+                const beforeUpload = (file) => {
+                    const isJPG = file.type === 'image/jpeg';
+                    const isPNG = file.type === 'image/png';
+                    const isLt500K = file.size / 1024 / 1024 < 0.5;
+
+                    if (!isJPG && !isPNG) {
+                        ElementPlus.ElMessage.error('上传头像图片只能是 JPG/PNG 格式!');
+                    }
+                    if (!isLt500K) {
+                        ElementPlus.ElMessage.error('上传头像图片大小不能超过 500KB!');
+                    }
+                    return isJPG && isPNG && isLt500K;
+                }
+
+                return {
+                    registerForm,
+                    avatarFile,
+                    rules,
+                    registerFormRef,
+                    loading,
+                    handleRegister,
+                    goToLogin,
+                    User: ElementPlusIconsVue.User,
+                    Lock: ElementPlusIconsVue.Lock
+                }
+            }
+        })
+
+        app.use(ElementPlus)
+        app.mount('#app')
+    </script>
+</body>
+</html>
