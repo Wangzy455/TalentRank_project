@@ -4,6 +4,7 @@ import Result.Result;
 import com.qiniu.talentrankserver.service.UserService;
 import constent.JwtClaimsConstant;
 import dto.LoginDTO;
+import dto.RegisterDTO;
 import entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +50,17 @@ public class UserController {
                 .build();
 
         return Result.success(loginVO);
+    }
+
+    /**
+     * 用户注册
+     * @param registerDTO
+     * @return
+     */
+    @PostMapping("/register")
+    public Result register(@RequestBody RegisterDTO registerDTO){
+        log.info("用户注册：{}",registerDTO);
+        userService.register(registerDTO);
+        return Result.success();
     }
 }

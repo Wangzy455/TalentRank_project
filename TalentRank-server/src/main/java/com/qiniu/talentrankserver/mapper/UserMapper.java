@@ -12,4 +12,10 @@ public interface UserMapper {
      * @return
      */
     User getUserByName(String username);
+
+    /**
+     * 用户注册
+     * @param user
+     */
+    void register(User user);
 }

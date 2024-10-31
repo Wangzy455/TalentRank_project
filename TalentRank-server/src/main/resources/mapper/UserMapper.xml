@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.qiniu.talentrankserver.mapper.UserMapper">
+    <insert id="register" useGeneratedKeys="true" keyProperty="id" >
+          insert into user (name,username,password_hash,introduce)
+          values (#{name},#{username},#{passwordHash},#{introduce})
+    </insert>
 
     <select id="getUserByName" resultType="entity.User">
         select id,password_hash from user where

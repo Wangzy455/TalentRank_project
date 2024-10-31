@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <!-- 引入 Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- 引入 Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 引入 Element Plus 图标 -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <!-- 引入axios库 -->
+    <script src="axios.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .app-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .register-card {
+            width: 100%;
+            max-width: 360px;
+        }
+        .register-title {
+            text-align: center;
+            color: #303133;
+            margin: 0;
+        }
+        .register-button {
+            width: 100%;
+        }
+        .register-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="app-title">TalentRank Rating System</div>
+    <el-card class="register-card">
+        <template #header>
+            <h2 class="register-title">用户注册</h2>
+        </template>
+        <el-form :model="registerForm" :rules="rules" ref="registerFormRef" @submit.prevent="handleRegister">
+            <el-form-item prop="username">
+                <el-input
+                        v-model="registerForm.username"
+                        placeholder="用户名"
+                        :prefix-icon="User"
+                ></el-input>
+            </el-form-item>
+            <el-form-item prop="passwordHash">
+                <el-input
+                        v-model="registerForm.passwordHash"
+                        type="password"
+                        placeholder="密码"
+                        :prefix-icon="Lock"
+                        show-password
+                ></el-input>
+            </el-form-item>
+            <el-form-item prop="name">
+                <el-input
+                        v-model="registerForm.name"
+                        placeholder="昵称"
+                ></el-input>
+            </el-form-item>
+            <el-form-item prop="introduce">
+                <el-input
+                        type="textarea"
+                        v-model="registerForm.introduce"
+                        placeholder="个人介绍"
+                ></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" native-type="submit" :loading="loading" class="register-button">
+                    注册
+                </el-button>
+            </el-form-item>
+        </el-form>
+        <div class="register-options">
+            <el-link type="primary" @click="goToLogin">已有账户？登录</el-link>
+        </div>
+    </el-card>
+</div>
+
+<script>
+    const { createApp, ref, reactive } = Vue
+    const app = createApp({
+        setup() {
+            const registerForm = reactive({
+                username: '',
+                passwordHash: '',
+                name: '',
+                introduce: ''
+            })
+
+            const rules = {
+                username: [
+                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' },
+                    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+                ],
+                nickname: [
+                    { required: true, message: '请输入昵称', trigger: 'blur' }
+                ],
+                introduction: [
+                    { required: true, message: '请输入个人介绍', trigger: 'blur' }
+                ]
+            }
+
+            const registerFormRef = ref(null)
+            const loading = ref(false)
+
+            // 预留的跳转链接接口
+            const successRedirectUrl = '/login.html'; // 注册成功后跳转的URL
+            const loginRedirectUrl = '/login.html'; // 登录按钮跳转的URL
+
+            const handleRegister = async () => {
+                if (!registerFormRef.value) return
+
+                try {
+                    await registerFormRef.value.validate()
+                    loading.value = true
+                    const response = await axios.post('/user/register', {
+                        username: registerForm.username,
+                        passwordHash: registerForm.passwordHash,
+                        name: registerForm.name,
+                        introduce: registerForm.introduce
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    // 检查返回的对象是否不为空
+                    if (response.data && Object.keys(response.data).length !== 0) {
+                        // 如果返回的对象不为空，认为注册成功
+                        ElementPlus.ElMessage.success('注册成功');
+                        window.location.href = successRedirectUrl; // 使用预留的接口进行跳转
+                    } else {
+                        // 如果返回的对象为空，处理注册失败
+                        ElementPlus.ElMessage.error('注册失败：返回数据为空');
+                    }
+                } catch (error) {
+                    console.error('注册失败:', error)
+                    ElementPlus.ElMessage.error('注册失败，请检查您的输入')
+                } finally {
+                    loading.value = false
+                }
+            }
+
+            const goToLogin = () => {
+                window.location.href = loginRedirectUrl; // 使用预留的接口进行跳转
+            }
+
+            return {
+                registerForm,
+                rules,
+                registerFormRef,
+                loading,
+                handleRegister,
+                goToLogin,
+                User: ElementPlusIconsVue.User,
+                Lock: ElementPlusIconsVue.Lock
+            }
+        }
+    })
+
+    app.use(ElementPlus)
+    app.mount('#app')
+</script>
+</body>
+</html>

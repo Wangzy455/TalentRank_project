@@ -4,9 +4,11 @@ import com.qiniu.talentrankserver.mapper.UserMapper;
 import com.qiniu.talentrankserver.service.UserService;
 import constent.MessageConstant;
 import dto.LoginDTO;
+import dto.RegisterDTO;
 import entity.User;
 import exception.AccountNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,5 +37,15 @@ public class UserServiceImpl implements UserService {
         }
 
         return user;
+    }
+
+    /**
+     * 用户注册
+     * @param registerDTO
+     */
+    public void register(RegisterDTO registerDTO) {
+         User user = new User();
+         BeanUtils.copyProperties(registerDTO,user);
+         userMapper.register(user);
     }
 }

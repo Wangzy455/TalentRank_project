@@ -14,20 +14,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class User {
     private Long id;
-
     private String username;
-
-    private String password;
-
+    private String passwordHash;
     private String name;
-
     private String webImg;
-
-    private String personIntroduce;
-
+    private String introduce;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 }
